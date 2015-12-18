@@ -10,7 +10,6 @@ import org.springframework.messaging.MessageChannel;
 @Configuration
 @EnableIntegration
 public class TransformConfig {
-
     @Bean
     public MessageChannel input() {
         return new DirectChannel();
