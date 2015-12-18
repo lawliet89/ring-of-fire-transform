@@ -7,12 +7,11 @@ import org.springframework.xd.dirt.test.SingleNodeIntegrationTestSupport;
 import org.springframework.xd.dirt.test.SingletonModuleRegistry;
 import org.springframework.xd.dirt.test.process.SingleNodeProcessingChain;
 import org.springframework.xd.module.ModuleType;
-import org.springframework.xd.test.RandomConfigurationSupport;
 
 import static org.junit.Assert.assertEquals;
 import static org.springframework.xd.dirt.test.process.SingleNodeProcessingChainSupport.chain;
 
-public class TextTransformerTest {
+public class TextTransformerIntegrationTest {
     private static SingleNodeApplication application;
 
     private static int RECEIVE_TIMEOUT = 5000;
@@ -39,8 +38,8 @@ public class TextTransformerTest {
      * message is processed as expected.
      */
     @Test
-    public void test() {
-        String streamName = "ring-of-fire-stream";
+    public void testDefault() {
+        String streamName = "ring-of-fire-stream-default";
         String payload = "lorem ipsum";
 
         String processingChainUnderTest = moduleName;
@@ -52,6 +51,25 @@ public class TextTransformerTest {
         String result = (String) chain.receivePayload(RECEIVE_TIMEOUT);
 
         assertEquals("lorem ipsum foobar", result);
+
+        //Unbind the source and sink channels from the message bus
+        chain.destroy();
+    }
+
+    @Test
+    public void testSuffix() {
+        String streamName = "ring-of-fire-stream-suffix";
+        String payload = "lorem ipsum";
+
+        String processingChainUnderTest = String.format("%s --suffix=' foo'", moduleName);
+
+        SingleNodeProcessingChain chain = chain(application, streamName, processingChainUnderTest);
+
+        chain.sendPayload(payload);
+
+        String result = (String) chain.receivePayload(RECEIVE_TIMEOUT);
+
+        assertEquals("lorem ipsum foo", result);
 
         //Unbind the source and sink channels from the message bus
         chain.destroy();
