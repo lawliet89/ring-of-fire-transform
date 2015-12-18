@@ -28,6 +28,7 @@ public class TransformConfigTest {
         Properties properties = new Properties();
         properties.put("suffix", "foobar");
         context.getEnvironment().getPropertySources().addLast(new PropertiesPropertySource("options", properties));
+        context.register(TextTransformer.class);
         context.register(TestConfiguration.class);
         context.refresh();
 
